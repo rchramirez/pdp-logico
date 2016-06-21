@@ -28,3 +28,8 @@ filtro(nico, ignorar(['interestelar'])).
 filtro(lucas, masDe(0.7)).
 filtro(lucas, soloFormal).
 filtro(mama, ignorar(['dsp','paja'])).
+
+%punto 1
+recibioMensaje(Mensaje,Persona):-
+	mensaje(Mensaje,Personas),
+	member(Persona,Personas).
