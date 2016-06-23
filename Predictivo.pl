@@ -5,6 +5,7 @@
 mensaje(['hola', ',', 'qu�', 'onda', '?'], nico).
 mensaje(['todo', 'bien', 'dsp', 'hablamos'], nico).
 mensaje(['q', 'parcial', 'vamos', 'a', 'tomar', '?'], [nico, lucas, maiu]).
+mensaje(['a','b'], [nico, lucas, maiu, mama]).
 mensaje(['todo', 'bn', 'dsp', 'hablamos'], [nico, lucas, maiu]).
 mensaje(['todo', 'bien', 'despu�s', 'hablamos'], mama).
 mensaje(['�','y','q', 'onda', 'el','parcial', '?'], nico).
@@ -36,6 +37,12 @@ recibioMensaje(Mensaje,Persona):-
 	findall(X,mensaje(Mensaje,X),Personas),
 	flatten(Personas,UnaSolaLista),
 	member(Persona,UnaSolaLista).
+	
+recibidos(Persona,Mensaje):-
+	mensaje(Mensaje,Personas),
+	member(Persona,Personas).
+recibidos(Persona,Mensaje):-
+	mensaje(Mensaje,Persona).
 
 % demasidoFormal/1: se consideran demasiado formales los mensajes con más de 20 palabras
 % que incluyen signos y los que comienzan con ‘¿’. A menos que tengan abreviaturas, en cuyo caso la formalidad se pierde.
@@ -93,7 +100,8 @@ cantidadApariciones(Palabra,Cantidad):-
 	sumlist(Cantidades,Cantidad).
 
 esLoMismo(Palabra1,Palabra2):-
-		abreviatura(Palabra1,Palabra2).
+		abreviatura(Palabra1,Palabra2);
+		abreviatura(Palabra2,Palabra1).
 esLoMismo(Palabra1,Palabra1).
 	
 % dicenLoMismo/2: dos mensajes dicen lo mismo cuando todas las palabras de ambos se encuentran en el mismo orden
@@ -115,9 +123,12 @@ dicenLoMismo2([X|Xs],[Y|Ys]):-
 % Para nuestra base de conocimientos fraseCelebre/1 sería cierto para cualquiera de las versiones usadas de “todo bien después hablamos”, 
 % pero no para el de “¿y qué onda el parcial?”.
 fraseCelebre(Mensaje):-
-	recibioMensaje(_,Usuario),
-	forall(mensaje(UnMensaje,Usuario),dicenLoMismo(Mensaje,UnMensaje)).
-
+	forall(recibioMensaje(_,Usuario),recibioParecido(Mensaje,Usuario)).
+	
+recibioParecido(Mensaje,Persona):-
+	recibidos(Persona,OtroMensaje),
+	dicenLoMismo(Mensaje,OtroMensaje).
+	
 % prediccion/3: relaciona un mensaje a ser enviado, quién lo recibirá (persona o grupo) y una predicción. Una predicción es una posible palabra
 % para continuar el mensaje.
 % Toda palabra que haya sido escrita en algún mensaje después de la última palabra del texto a enviar (o alguna equivalencia de la misma) 
@@ -128,7 +139,8 @@ fraseCelebre(Mensaje):-
 prediccion(Mensaje,Receptor,Prediccion):-
 	ultimaPalabra(Mensaje,Ultima),
 	siguientePalabra(Ultima,Prediccion),
-	esAceptable(Receptor,Prediccion).
+	esAceptable(Receptor,Prediccion),
+	not(fraseCelebre(Mensaje)).
 	
 siguientePalabra(Palabra,Siguiente):-
 	mensaje(Mensaje,_),
