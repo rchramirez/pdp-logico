@@ -33,8 +33,9 @@ filtro(mama, ignorar(['dsp','paja'])).
 % recibioMensaje/2: relaciona una persona con un mensaje si recibió dicho mensaje del usuario 
 % ya sea de forma individual o grupal. Deberían ser posibles respuestas nico, lucas, maiu y mama, y no [nico, lucas, maiu].
 recibioMensaje(Mensaje,Persona):-
-	mensaje(Mensaje,Personas),
-	member(Persona,Personas).
+	findall(X,mensaje(Mensaje,X),Personas),
+	flatten(Personas,UnaSolaLista),
+	member(Persona,UnaSolaLista).
 
 % demasidoFormal/1: se consideran demasiado formales los mensajes con más de 20 palabras
 % que incluyen signos y los que comienzan con ‘¿’. A menos que tengan abreviaturas, en cuyo caso la formalidad se pierde.
@@ -60,25 +61,36 @@ contieneAbreviatura(Mensaje):-
 %	soloFormal: Solamente es aceptable si la palabra se encuentra en algún mensaje demasiado  formal.
 %	No se espera que sea inversible.
 esAceptable(Persona,Palabra):-
-	forall(filtro(Persona,Filtro),cumpleFiltro(Palabra,Filtro)).
+	forall(filtro(Persona,Filtro),cumpleFiltro(Palabra,Persona,Filtro)).
 
-cumpleFiltro(Palabra,masDe(X)):-
-    length(Palabra,Largo),
-    Largo > X.
-
-cumpleFiltro(Palabra,ignorar([X])):-
+cumpleFiltro(Palabra,_,ignorar(X)):-
 	not(member(Palabra,X)).
 
-cumpleFiltro(Palabra,soloFormal):-
-	mensaje(Mensajes,_),
-	demasiadoFormal(Mensajes),
+cumpleFiltro(Palabra,_,soloFormal):-
+	mensaje(Mensaje,_),
+	demasiadoFormal(Mensaje),
 	member(Palabra,Mensaje).
 
+cumpleFiltro(Palabra,Persona,masDe(X)):-
+    cantidadEnviados(Persona,Enviados),
+	cantidadApariciones(Palabra,Apariciones),
+	Tasa is Enviados / Apariciones,
+    Tasa > X.
+	
 /*aparacionDe([],Palabra,0).
 aparacionDe(Lista,Palabra,N):-
 	.*/
+cantidadEnviados(Persona,Cantidad):-
+		findall(Mensaje,recibioMensaje(Mensaje,Persona),Mensajes),
+		length(Mensajes,Cantidad).
+		
+count([],X,0).
+count([X|T],X,Y):- count(T,X,Z), Y is 1+Z.
+count([_|T],X,Z):- count(T,X,Z).		
 	
-	
+cantidadApariciones(Palabra,Cantidad):-
+	findall(X,(mensaje(Mensaje,_),count(Mensaje,Palabra,X)),Cantidades),
+	sumlist(Cantidades,Cantidad).
 
 esLoMismo(Palabra1,Palabra2):-
 		abreviatura(Palabra1,Palabra2).
@@ -102,8 +114,9 @@ dicenLoMismo2([X|Xs],[Y|Ys]):-
 % Debería ser cierto incluso si no fue escrito siempre de la misma forma, lo importante es que diga lo mismo.
 % Para nuestra base de conocimientos fraseCelebre/1 sería cierto para cualquiera de las versiones usadas de “todo bien después hablamos”, 
 % pero no para el de “¿y qué onda el parcial?”.
-%fraseCelebre(Mensaje):-
-%	.
+fraseCelebre(Mensaje):-
+	recibioMensaje(_,Usuario),
+	forall(mensaje(UnMensaje,Usuario),dicenLoMismo(Mensaje,UnMensaje)).
 
 % prediccion/3: relaciona un mensaje a ser enviado, quién lo recibirá (persona o grupo) y una predicción. Una predicción es una posible palabra
 % para continuar el mensaje.
@@ -112,7 +125,19 @@ dicenLoMismo2([X|Xs],[Y|Ys]):-
 % Para que la potencial predicción sea una respuesta, deberá ser aceptable para el/los receptor/es (si es un grupo debería ser aceptable 
 % para todos los que lo conforman).
 % Sin embargo, si el mensaje a enviar es alguna frase célebre, no se debe proveer una predicción porque se considera que el mensaje ya está completo.
-%prediccion(Mensaje,Receptor,Prediccion):-
-%	.
+prediccion(Mensaje,Receptor,Prediccion):-
+	ultimaPalabra(Mensaje,Ultima),
+	siguientePalabra(Ultima,Prediccion),
+	esAceptable(Receptor,Prediccion).
+	
+siguientePalabra(Palabra,Siguiente):-
+	mensaje(Mensaje,_),
+	nth0(Posicion,Mensaje,Palabra),
+	PosicionSiguiente is Posicion+1,
+	nth0(PosicionSiguiente,Mensaje,Siguiente).
+
+ultimaPalabra(Mensaje,Ultima):-
+	length(Mensaje,Largo),
+	nth1(Largo,Mensaje,Ultima).
 
 % Nota: Sólo se espera que sea inversible respecto a la predicción. El mensaje y el receptor son datos provistos por el usuario.
