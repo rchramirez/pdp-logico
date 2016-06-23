@@ -1,23 +1,24 @@
 % mensaje(ListaDePalabras, Receptor).
 %	Los receptores posibles son:
-%	Persona: un simple Ã¡tomo con el nombre de la persona; Ã³
+%	Persona: un simple Ã¡tomo con el nombre de la persona; 
 %	Grupo: una lista de al menos 2 nombres de personas que pertenecen al grupo.
-mensaje(['hola', ',', 'quÃ©', 'onda', '?'], nico).
+mensaje(['hola', ',', 'qué', 'onda', '?'], nico).
 mensaje(['todo', 'bien', 'dsp', 'hablamos'], nico).
 mensaje(['q', 'parcial', 'vamos', 'a', 'tomar', '?'], [nico, lucas, maiu]).
 mensaje(['todo', 'bn', 'dsp', 'hablamos'], [nico, lucas, maiu]).
-mensaje(['todo', 'bien', 'despuÃ©s', 'hablamos'], mama).
-mensaje(['Â¿','y','q', 'onda', 'el','parcial', '?'], nico).
-mensaje(['Â¿','y','quÃ©', 'onda', 'el','parcial', '?'], lucas).
+mensaje(['todo', 'bien', 'después', 'hablamos'], mama).
+mensaje(['¿','y','q', 'onda', 'el','parcial', '?'], nico).
+mensaje(['¿','y','qué', 'onda', 'el','parcial', '?'], lucas).
 
 % abreviatura(Abreviatura, PalabraCompleta) relaciona una abreviatura con su significado.
-abreviatura('dsp', 'despuÃ©s').
+abreviatura('dsp', 'después').
 abreviatura('q', 'que').
-abreviatura('q', 'quÃ©').
+abreviatura('q', 'qué').
+abreviatura('q','qué').
 abreviatura('bn', 'bien').
 
 % signo(UnaPalabra) indica si una palabra es un signo.
-signo('Â¿').
+signo('¿').
 signo('?').
 signo('.').
 signo(',').
@@ -76,12 +77,26 @@ cumpleFiltro(Palabra,soloFormal):-
 /*aparacionDe([],Palabra,0).
 aparacionDe(Lista,Palabra,N):-
 	.*/
+	
+	
+
+esLoMismo(Palabra1,Palabra2):-
+		abreviatura(Palabra1,Palabra2).
+esLoMismo(Palabra1,Palabra1).
+	
 % dicenLoMismo/2: dos mensajes dicen lo mismo cuando todas las palabras de ambos se encuentran en el mismo orden
 % y son equivalentes (las abreviaturas son equivalentes a sus correspondientes palabras). 
 % Por ejemplo el Ãºltimo mensaje enviado a lucas dice lo mismo que el Ãºltimo enviado a nico.
 dicenLoMismo(MensajeUno,MensajeDos):-
-	.
-
+	forall(member(Palabra1,MensajeUno),	(nth0(Posicion,MensajeUno,Palabra1),nth0(Posicion,MensajeDos,Palabra2),esLoMismo(Palabra1,Palabra2))).
+	
+	
+dicenLoMismo2([_],[_]).
+dicenLoMismo2([X|Xs],[Y|Ys]):-
+	esLoMismo(X,Y),
+	dicenLoMismo2(Xs,Ys).
+	
+	
 % fraseCelebre/1: un mensaje es frase cÃ©lebre cuando se usÃ³ con todos los contactos del usuario. 
 % Los contactos son simplemente las personas que recibieron algÃºn mensaje del usuario.
 % DeberÃ­a ser cierto incluso si no fue escrito siempre de la misma forma, lo importante es que diga lo mismo.
