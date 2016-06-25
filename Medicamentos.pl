@@ -41,7 +41,6 @@ medicamentoMilagroso(Pers,Medic):-
 	esMedicamento(Medic),
 	forall(estaEnfermo(Pers,Enf),sirveParaCurar(Medic,OtraEnf)),
 	not(sirveParaPotenciar(Medic,Enf)).
-	forall(estaEnfermo(Pers,_),medicamentoUtil(Pers,Medic)).
 
 % PUNTO 3
 
