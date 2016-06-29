@@ -62,9 +62,27 @@ medicamentoCura(Medic,Enf):-
 %	*se incluye al menos en un medicamento, ese medicamento se vende al menos
 %	en una farmacia, y ninguna farmacia lo vende a mas de 10 pesos.
 % Este predicado debe ser inversible.
-/*drogaSimpatica(Droga):-
-	.*/
+
+drogaSimpatica(Droga):-
+	efecto(Droga,_),
+	findall(Cura,efecto(Droga,cura(Cura)),Curas),
+	findall(Potencia,efecto(Droga,potencia(Potencia)),Potencias),
+	length(Curas,CantidadCuras),
+	length(Potencias,0),
+	CantidadCuras>4.
 	
+drogaSimpatica(Droga):-
+	estaEnfermo(eomer,Enf1),
+	efecto(Droga,cura(Enf1)),
+	estaEnfermo(eowyn,Enf2),
+	efecto(Droga,cura(Enf2)),
+	Enf1 \= Enf2.
+	
+drogaSimpatica(Droga):-
+	incluye(Medic,Droga),
+	vende(_,Medic,_), % Se vende en alguna farmacia
+	forall(vende(_,Medic,Precio),Precio<10).
+
 % PUNTO 4
 % tipoSuicida(Pers), se verica para una persona si compro al menos un producto que no sirve para
 % curar ninguna enfermedad de la que esta enfermo y que si sirve para potenciar una enfermedad de la que esta enfermo.
