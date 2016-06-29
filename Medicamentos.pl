@@ -120,6 +120,7 @@ actividadFuePorMedicamento(preguntoPor(Medic,_),Medic).
 % gastoTotal(Pers,Plata) relaciona cada persona con el total que gasto en medicamentos
 % que compro, segun el precio de cada medicamento comprado en la farmacia en la que hizo la compra.
 gastoTotal(Pers,Plata):-
+	actividad(Pers,_,_), % Para hacerlo totalmente inversible
 	findall(Pre,compraMedicamento(Pers,_,Pre),Precios),
 	sumlist(Precios,Plata).
 
