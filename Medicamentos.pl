@@ -99,16 +99,17 @@ tipoActivoEn(Pers,Mes,Anio):-
 	actividad(Pers,fecha(_,Mes,Anio),compro(_,_)).
 
 /*diaProductivo(Fecha):-
-	forall().
+	forall().*/
 
 % PUNTO 7
 % gastoTotal(Pers,Plata) relaciona cada persona con el total que gasto en medicamentos
 % que compro, segun el precio de cada medicamento comprado en la farmacia en la que hizo la compra.
 gastoTotal(Pers,Plata):-
-	.
+	findall(Pre,compraMedicamento(Pers,_,Pre),Precios),
+	sumlist(Precios,Plata).
 
 % PUNTO 8
 % zafoDe(Pers,Enfer), se verifica si Pers no esta enfermo de Enfer, pero algun
 % ancestro de Pers (padre, abuelo, bisabuelo, etc.) si lo esta.
-zafoDe(Pers,Enfer):-
+/*zafoDe(Pers,Enfer):-
 	.*/
