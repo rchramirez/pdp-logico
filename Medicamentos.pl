@@ -127,5 +127,8 @@ gastoTotal(Pers,Plata):-
 % PUNTO 8
 % zafoDe(Pers,Enfer), se verifica si Pers no esta enfermo de Enfer, pero algun
 % ancestro de Pers (padre, abuelo, bisabuelo, etc.) si lo esta.
-/*zafoDe(Pers,Enfer):-
-	.*/
+zafoDe(Pers,Enfer):-
+	estaEnfermo(Pers,_), % Unifico para que sea inversible la persona
+	estaEnfermo(_,Enfer), % Unifico para que sea inversible la enfermedad
+	not(estaEnfermo(Pers,Enfer)),
+	forall(padre(Padre,Pers),zafoDe(Padre,Enfer)).
