@@ -98,13 +98,24 @@ consultaPor(Pers,Medic,PreCom):-
 % b. diaProductivo(Fecha), se verifica para una fecha (functor fecha(Dia,Mes,Anio))
 % si todas las actividades que se hicieron en ese dia fueron compras o preguntas
 % de un medicamento util para la persona que hizo la actividad.
-tipoActivoEn(Pers,Mes,Anio):-
-	actividad(Pers,fecha(_,Mes,Anio),preguntoPor(_,_));
-	actividad(Pers,fecha(_,Mes,Anio),compro(_,_)).
 
-/*diaProductivo(Fecha):-
-	forall().*/
+% Aca desaprovechas el polimorfismo
+%tipoActivoEn(Pers,Mes,Anio):- 
+%	actividad(Pers,fecha(_,Mes,Anio),preguntoPor(_,_));
+%	actividad(Pers,fecha(_,Mes,Anio),compro(_,_)).
 
+%a)
+tipoActivoEn(Pers,Mes,Anio):- 
+	actividad(Pers,fecha(_,Mes,Anio),_).	
+
+%b)	
+diaProductivo(Fecha):-
+	actividad(_,Fecha,_),
+	forall(actividad(Pers,Fecha,Actividad),(actividadFuePorMedicamento(Actividad,Medic),medicamentoUtil(Pers,Medic))).
+
+actividadFuePorMedicamento(compro(Medic,_),Medic).
+actividadFuePorMedicamento(preguntoPor(Medic,_),Medic).
+	
 % PUNTO 7
 % gastoTotal(Pers,Plata) relaciona cada persona con el total que gasto en medicamentos
 % que compro, segun el precio de cada medicamento comprado en la farmacia en la que hizo la compra.
