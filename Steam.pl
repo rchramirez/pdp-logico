@@ -21,23 +21,25 @@ usuario(rasta, [lineage2], []).
 usuario(agus, [], []).
 usuario(felipe, [plantsVsZombies], [compra(tetris)]).
 
-nombreDelJuego(accion(Nombre), Nombre).
-nombreDelJuego(mmorpg(Nombre, _), Nombre).
-nombreDelJuego(puzzle(Nombre, _, _), Nombre).
+nombreDelJuego(accion(Nombre), Nombre):-
+	juego(accion(Nombre),_).
+nombreDelJuego(mmorpg(Nombre,X), Nombre):-
+	juego(mmorpg(Nombre,X),_).
+nombreDelJuego(puzzle(Nombre,X,Y), Nombre):-
+	juego(puzzle(Nombre,X,Y),_).
 
+	
 cuantoSale(Juego, Precio):-
 	juego(Juego,_),
-	precioDe(Juego, Precio).
-
+	findall(UnPrecio,precioDe(Juego,UnPrecio),Precios),
+	min_member(Precio,Precios).
+	
 precioDe(Juego, Precio):-
 	juego(Juego, PrecioU),
 	nombreDelJuego(Juego, Nombre),
 	oferta(Nombre, Porcentaje),
 	Precio is PrecioU - (PrecioU * (Porcentaje / 100)).
-
-precioDe(Juego, Precio):-
-	juego(Juego, Precio).
-
+	
 juegoPopular(Juego):-
 	juego(Juego,_),
 	tipoDe(Juego).
@@ -75,8 +77,21 @@ monotematico(Usuario, Juego):-
 
 buenosAmigos(Usuario, OtroUsuario):-
 	.
-*/
+
 cuantoGastara(Usuario, Dinero):-
 	usuario(Usuario, _, Lista),
 	findall(Adquisicion,member(Adquisicion,Lista),Adquisiciones),
-	findall(Nombre,(member(Nombre,Adquisiciones), granDescuento(Nombre)),Nombres),
+	findall(Nombre,(member(Nombre,Adquisiciones), granDescuento(Nombre)),Nombres).
+*/
+
+cuantoGastara(Usuario, Dinero):-
+	usuario(Usuario, _, Lista),
+	findall(Gasto,(member(Elemento,Lista),seCompra(Elemento,Juego),cuantoSale(Juego,Gasto)),Gastos),
+	sumlist(Gastos,Dinero).
+
+	
+seCompra(compra(Nombre),Juego):-
+	nombreDelJuego(Juego,Nombre).
+
+
+	
