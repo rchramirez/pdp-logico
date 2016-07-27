@@ -6,3 +6,6 @@ Predictivos
 
 Medicamentos
 [Archivo adjunto] (http://www.pdep.com.ar/material/parciales/parcial-logico-20090804.pdf?attredirects=0)
+
+Steam
+[Archivo adjunto] (https://s19.postimg.org/6hbb16wwj/sd+001.jpg) AND (https://s19.postimg.org/jzi7dh91v/asd+001.jpg)
