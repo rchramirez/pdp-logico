@@ -16,10 +16,11 @@ oferta(plantsVsZombies, 50).
 oferta(lineage2, 60).
 
 usuario(nico, [batmanAA, plantsVsZombies, tetris], [compra(lineage2)]).
-usuario(fede, [], [regalo(callOfDuty,nico),regalo(wow, nico)]).
+usuario(fede, [], [regalo(callOfDuty,nico),regalo(wow, pepe)]).
 usuario(rasta, [lineage2], []).
 usuario(agus, [], []).
 usuario(felipe, [plantsVsZombies], [compra(tetris)]).
+usuario(pepe, [], [regalo(callOfDuty,fede),regalo(wow, nico)]).
 
 nombreDelJuego(accion(Nombre), Nombre):-
 	juego(accion(Nombre),_).
@@ -28,18 +29,23 @@ nombreDelJuego(mmorpg(Nombre,X), Nombre):-
 nombreDelJuego(puzzle(Nombre,X,Y), Nombre):-
 	juego(puzzle(Nombre,X,Y),_).
 
-	
+% PUNTO UNO
 cuantoSale(Juego, Precio):-
 	juego(Juego,_),
-	findall(UnPrecio,precioDe(Juego,UnPrecio),Precios),
-	min_member(Precio,Precios).
+	precioDe(Juego,Precio).
 	
 precioDe(Juego, Precio):-
 	juego(Juego, PrecioU),
 	nombreDelJuego(Juego, Nombre),
 	oferta(Nombre, Porcentaje),
 	Precio is PrecioU - (PrecioU * (Porcentaje / 100)).
-	
+
+precioDe(Juego, Precio):-
+	juego(Juego,Precio),
+	nombreDelJuego(Juego, Nombre),
+	not(oferta(Nombre,_)).
+
+% PUNTO DOS
 juegoPopular(Juego):-
 	juego(Juego,_),
 	tipoDe(Juego).
@@ -50,48 +56,61 @@ tipoDe(mmorpg(_, Usuarios)):-
 tipoDe(puzzle(_, 25, _)).
 tipoDe(puzzle(_, _, facil)).
 
+% PUNTO TRES
 tieneUnBuenDescuento(Juego):-
 	juego(Juego, _),
 	nombreDelJuego(Juego, Nombre),
-	granDescuento(Nombre).
-
-granDescuento(Nombre):-
 	oferta(Nombre, Porcentaje),
 	Porcentaje > 50.
+	
 
-
-listaDe(regalo(Nombre,_), Nombre).
-listaDe(compra(Nombre), Nombre).
-
+% PUNTO CUATRO
 adictoALosDescuentos(Usuario):-
 	usuario(Usuario, _, Lista),
-	forall(member(Adquisicion,Lista), (listaDe(Adquisicion,Nombre), granDescuento(Nombre))).
-/*
-fanaticoDe(Usuario, Juego):-
-	usuario(Usuario, _, Lista).
-	juego(Juego),
-	nombreDelJuego(Juego, Nombre).
-
-monotematico(Usuario, Juego):-
-	.
-
-buenosAmigos(Usuario, OtroUsuario):-
-	.
-
-cuantoGastara(Usuario, Dinero):-
-	usuario(Usuario, _, Lista),
-	findall(Adquisicion,member(Adquisicion,Lista),Adquisiciones),
-	findall(Nombre,(member(Nombre,Adquisiciones), granDescuento(Nombre)),Nombres).
-*/
-
-cuantoGastara(Usuario, Dinero):-
-	usuario(Usuario, _, Lista),
-	findall(Gasto,(member(Elemento,Lista),seCompra(Elemento,Juego),cuantoSale(Juego,Gasto)),Gastos),
-	sumlist(Gastos,Dinero).
-
+	not(length(Lista,0)),
+	forall(member(Adquisicion,Lista), (seAdquiere(Adquisicion,Juego), tieneUnBuenDescuento(Juego))).
 	
-seCompra(compra(Nombre),Juego):-
+seAdquiere(compra(Nombre),Juego):-
+	nombreDelJuego(Juego,Nombre).
+
+seAdquiere(regalo(Nombre,_),Juego):-
 	nombreDelJuego(Juego,Nombre).
 
 
+% PUNTO CINCO
+/*fanaticoDe(Usuario, Juego):-
+	usuario(Usuario, Lista, _),
 	
+
+contar([],_,N):-
+	N is 0.
+contar([X|_],M,N):-
+	X=(M,N).
+
+contar([_|L],M,N):-
+	contar(L,M,N).
+
+% PUNTO SEIS
+monotematico(Usuario, Juego):-
+	.
+*/
+%PUNTO SIETE
+buenosAmigos(Usuario, OtroUsuario):-
+	usuario(Usuario,_,Lista1),
+	usuario(OtroUsuario,_,Lista2),
+	regalosA(Usuario,Lista2),
+	regalosA(OtroUsuario,Lista1).
+
+regalosA(Usuario,Lista):-
+	member(Elemento,Lista),
+	juegoDe(Elemento,Usuario).
+
+juegoDe(regalo(Nombre,Usuario),Usuario):-
+	nombreDelJuego(Juego,Nombre),
+	juegoPopular(Juego).
+
+% PUNTO OCHO
+cuantoGastara(Usuario, Dinero):-
+	usuario(Usuario, _, Lista),
+	findall(Gasto,(member(Elemento,Lista),seAdquiere(Elemento,Juego),cuantoSale(Juego,Gasto)),Gastos),
+	sumlist(Gastos,Dinero).
