@@ -80,15 +80,6 @@ seAdquiere(regalo(Nombre,_),Juego):-
 % PUNTO CINCO
 /*fanaticoDe(Usuario, Juego):-
 	usuario(Usuario, Lista, _),
-	
-
-contar([],_,N):-
-	N is 0.
-contar([X|_],M,N):-
-	X=(M,N).
-
-contar([_|L],M,N):-
-	contar(L,M,N).
 
 % PUNTO SEIS
 monotematico(Usuario, Juego):-
