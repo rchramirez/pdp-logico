@@ -78,13 +78,31 @@ seAdquiere(regalo(Nombre,_),Juego):-
 
 
 % PUNTO CINCO
-/*fanaticoDe(Usuario, Juego):-
+	
+nombreGenero(accion(_),accion).
+nombreGenero(mmorpg(_,_),mmorpg).
+nombreGenero(puzzle(_,_,_),puzzle).
+
+obtenerNombreGenero(NombreJuego,NombreGenero):- 
+	nombreDelJuego(Genero,NombreJuego),
+	nombreGenero(Genero,NombreGenero).
+
+fanaticoDe(Usuario, NombreGenero):-
 	usuario(Usuario, Lista, _),
+	member(UnJuego,Lista),
+	member(OtroJuego,Lista),
+	UnJuego \= OtroJuego,
+	obtenerNombreGenero(UnJuego,NombreGenero),
+	obtenerNombreGenero(OtroJuego,NombreGenero).
 
 % PUNTO SEIS
-monotematico(Usuario, Juego):-
-	.
-*/
+
+monotematico(Usuario, Genero):-
+	usuario(Usuario, Lista, _),
+	obtenerNombreGenero(_,Genero),
+	not(length(Lista,0)),
+	forall(member(Juego,Lista),obtenerNombreGenero(Juego,Genero)).
+
 %PUNTO SIETE
 buenosAmigos(Usuario, OtroUsuario):-
 	usuario(Usuario,_,Lista1),
